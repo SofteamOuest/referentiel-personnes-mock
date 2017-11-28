@@ -69,9 +69,9 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
             stage('deploy'){
 
-                sh 'kubectl delete svc meltingpoc-api-personnes-mock :'
-                sh 'kubectl delete deployment meltingpoc-api-personnes-mock :'
-                sh 'kubectl create -f kubernetes/meltingpoc-api-personnes-mock.yml :'
+                sh 'kubectl delete svc meltingpoc-api-personnes-mock || :'
+                sh 'kubectl delete deployment meltingpoc-api-personnes-mock || :'
+                sh 'kubectl create -f kubernetes/meltingpoc-api-personnes-mock.yml || :'
 
             }
         }
