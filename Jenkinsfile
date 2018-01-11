@@ -1,5 +1,5 @@
 #!groovy
-import java.text.SimpleDateFormat
+import java.text.*
 
 // pod utilisé pour la compilation du projet
 podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'medium', containers: [
@@ -47,7 +47,7 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
                 stage('build docker image'){
 
-                    sh 'docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now .'
+                    sh "docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now ."
 
                     sh 'mkdir /etc/docker'
 
@@ -55,12 +55,11 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
                     sh 'echo {"insecure-registries" : ["registry.k8.wildwidewest.xyz"]} > /etc/docker/daemon.json'
 
                     withCredentials([string(credentialsId: 'nexus_password', variable: 'NEXUS_PWD')]) {
-                         echo "My password is '${NEXUS_PWD}'!"
 
                          sh "docker login -u admin -p ${NEXUS_PWD} registry.k8.wildwidewest.xyz"
                     }
 
-                    sh 'docker push registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now'
+                    sh "docker push registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now"
                 }
         }
 
