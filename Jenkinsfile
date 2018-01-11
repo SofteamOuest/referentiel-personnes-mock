@@ -67,7 +67,7 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
             stage('deploy'){
 
-                build job: "meltingpoc-api-personnes-mock-run/master",
+                build job: "referentiel-personnes-mock-run/master",
                                   wait: false,
                                   parameters: [[$class: 'StringParameterValue', name: 'image', value: "$now"]]
 
