@@ -35,6 +35,8 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
                 )
             ])
 
+        def now = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
+
         stage('checkout sources'){
             checkout scm;
         }
@@ -45,10 +47,7 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
                 stage('build docker image'){
 
-
-                 
-
-                    sh 'docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock .'
+                    sh 'docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now .'
 
                     sh 'mkdir /etc/docker'
 
@@ -61,7 +60,7 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
                          sh "docker login -u admin -p ${NEXUS_PWD} registry.k8.wildwidewest.xyz"
                     }
 
-                    sh 'docker push registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock'
+                    sh 'docker push registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now'
                 }
         }
 
@@ -69,9 +68,9 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
             stage('deploy'){
 
-                sh 'kubectl delete svc meltingpoc-api-personnes-mock || :'
-                sh 'kubectl delete deployment meltingpoc-api-personnes-mock || :'
-                sh 'kubectl create -f kubernetes/meltingpoc-api-personnes-mock.yml || :'
+                build job: "meltingpoc-api-personnes-mock-run/master",
+                                  wait: false,
+                                  parameters: [[$class: 'StringParameterValue', name: 'image', value: "$now"]]
 
             }
         }
