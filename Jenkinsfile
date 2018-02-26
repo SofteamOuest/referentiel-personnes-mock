@@ -54,7 +54,6 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
                     sh "docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now ."
 
-
                     withCredentials([string(credentialsId: 'nexus_password', variable: 'NEXUS_PWD')]) {
 
                          sh "docker login -u admin -p ${NEXUS_PWD} registry.k8.wildwidewest.xyz"
