@@ -48,11 +48,12 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
                 stage('build docker image'){
 
                     // le registry est insecure (pas de https)
+                    sh 'mkdir /etc/docker'
+
                     sh 'echo {"insecure-registries" : ["registry.k8.wildwidewest.xyz"], "dns": "213.186.33.99"} > /etc/docker/daemon.json'
 
                     sh "docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now ."
 
-                    sh 'mkdir /etc/docker'
 
                     withCredentials([string(credentialsId: 'nexus_password', variable: 'NEXUS_PWD')]) {
 
