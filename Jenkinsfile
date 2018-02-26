@@ -26,18 +26,18 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
         properties([
                 buildDiscarder(
-                    logRotator(
-                        artifactDaysToKeepStr: '1',
-                        artifactNumToKeepStr: '1',
-                        daysToKeepStr: '3',
-                        numToKeepStr: '3'
-                    )
+                        logRotator(
+                                artifactDaysToKeepStr: '1',
+                                artifactNumToKeepStr: '1',
+                                daysToKeepStr: '3',
+                                numToKeepStr: '3'
+                        )
                 )
-            ])
+        ])
 
         def now = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
 
-        stage('checkout sources'){
+        stage('checkout sources') {
             checkout scm;
         }
 
@@ -45,31 +45,38 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
         container('docker') {
 
-                stage('build docker image'){
+            stage('build docker image') {
 
-                    // le registry est insecure (pas de https)
-                    sh 'mkdir /etc/docker'
+                // le registry est insecure (pas de https)
+                sh 'mkdir /etc/docker'
 
-                    sh 'echo {"insecure-registries" : ["registry.k8.wildwidewest.xyz"], "dns": "213.186.33.99"} > /etc/docker/daemon.json'
+                sh 'echo {"insecure-registries" : ["registry.k8.wildwidewest.xyz"], "dns": "213.186.33.99"} > /etc/docker/daemon.json'
+
+                try {
 
                     sh "docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now ."
-
-                    withCredentials([string(credentialsId: 'nexus_password', variable: 'NEXUS_PWD')]) {
-
-                         sh "docker login -u admin -p ${NEXUS_PWD} registry.k8.wildwidewest.xyz"
-                    }
-
-                    sh "docker push registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now"
                 }
+                catch (e) {
+
+                    sh "cat /root/.npm/_logs/*"
+                }
+
+                withCredentials([string(credentialsId: 'nexus_password', variable: 'NEXUS_PWD')]) {
+
+                    sh "docker login -u admin -p ${NEXUS_PWD} registry.k8.wildwidewest.xyz"
+                }
+
+                sh "docker push registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now"
+            }
         }
 
         container('kubectl') {
 
-            stage('deploy'){
+            stage('deploy') {
 
                 build job: "referentiel-personnes-mock-run/master",
-                                  wait: false,
-                                  parameters: [[$class: 'StringParameterValue', name: 'image', value: "$now"]]
+                        wait: false,
+                        parameters: [[$class: 'StringParameterValue', name: 'image', value: "$now"]]
 
             }
         }
