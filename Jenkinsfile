@@ -52,14 +52,7 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
                 sh 'echo {"insecure-registries" : ["registry.k8.wildwidewest.xyz"], "dns": "213.186.33.99"} > /etc/docker/daemon.json'
 
-                try {
-
-                    sh "docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now ."
-                }
-                catch (e) {
-
-                    sh "cat /root/.npm/_logs/*"
-                }
+                sh "docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now ."
 
                 withCredentials([string(credentialsId: 'nexus_password', variable: 'NEXUS_PWD')]) {
 
