@@ -1,0 +1,8 @@
+version: '3.2'
+services:
+
+  referentiel-personnes-api:
+    build: .
+    image: "registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:${tag}"
+    ports:
+    - "8080:80"

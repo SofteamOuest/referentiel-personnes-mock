@@ -38,7 +38,7 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
         def now = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
 
         stage('checkout sources') {
-            checkout scm;
+            checkout scm
         }
 
 
@@ -52,14 +52,16 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
                 sh 'echo {"insecure-registries" : ["registry.k8.wildwidewest.xyz"], "dns": "213.186.33.99"} > /etc/docker/daemon.json'
 
-                sh "docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now ."
-
                 withCredentials([string(credentialsId: 'nexus_password', variable: 'NEXUS_PWD')]) {
 
                     sh "docker login -u admin -p ${NEXUS_PWD} registry.k8.wildwidewest.xyz"
                 }
 
-                sh "docker push registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now"
+                sh "tag=$now docker-compose build"
+                sh "tag=$now docker-compose push"
+
+                #sh "docker build -t registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now ."
+                #sh "docker push registry.k8.wildwidewest.xyz/repository/docker-repository/pocs/meltingpoc-api-personnes-mock:$now"
             }
         }
 
@@ -67,10 +69,10 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
             stage('deploy') {
 
-                build job: "/SofteamOuest/referentiel-personnes-mock-run/master",
+                build job: "/SofteamOuest/chart-run/master",
                         wait: false,
-                        parameters: [[$class: 'StringParameterValue', name: 'image', value: "$now"]]
-
+                        parameters: [string(name: 'image', value: "$now"),
+                                        string(name: 'chart', value: "referentiel-personnes-mock")]
             }
         }
     }
