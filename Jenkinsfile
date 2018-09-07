@@ -41,8 +41,6 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
             checkout scm
         }
 
-
-
         container('docker') {
 
             stage('build docker image') {
@@ -52,12 +50,13 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
                 // le registry est insecure (pas de https)
                 sh 'echo {"insecure-registries" : ["registry.k8.wildwidewest.xyz"]} > /etc/docker/daemon.json'
 
-                withCredentials([string(credentialsId: 'nexus_password', variable: 'NEXUS_PWD')]) {
+                withCredentials([usernamePassword(credentialsId: 'nexus_user', usernameVariable: 'username', passwordVariable: 'password')]) {
 
-                    sh "docker login -u admin -p ${NEXUS_PWD} registry.k8.wildwidewest.xyz"
+                    sh "docker login -u ${username} -p ${password} registry.k8.wildwidewest.xyz"
                 }
 
                 sh "tag=$now docker-compose build"
+
                 sh "tag=$now docker-compose push"
             }
         }
@@ -69,7 +68,7 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
                 build job: "/SofteamOuest/chart-run/master",
                         wait: false,
                         parameters: [string(name: 'image', value: "$now"),
-                                        string(name: 'chart', value: "referentiel-personnes-mock")]
+                                     string(name: 'chart', value: "referentiel-personnes-mock")]
             }
         }
     }
