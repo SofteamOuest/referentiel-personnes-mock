@@ -37,13 +37,13 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
         def now = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
 
-        stage('checkout sources') {
+        stage('CHECKOUT') {
             checkout scm
         }
 
         container('docker') {
 
-            stage('build docker image') {
+            stage('BUILD DOCKER IMAGE') {
 
                 sh 'mkdir /etc/docker'
 
@@ -63,7 +63,7 @@ podTemplate(label: 'meltingpoc-referentiel-personnes-mock-pod', nodeSelector: 'm
 
         container('kubectl') {
 
-            stage('deploy') {
+            stage('RUN') {
 
                 build job: "/SofteamOuest/chart-run/master",
                         wait: false,
